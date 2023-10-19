@@ -4,19 +4,27 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.javautilitylearner.register.entity.Book;
+import com.javautilitylearner.register.entity.MyBookList;
 import com.javautilitylearner.register.service.BookService;
+import com.javautilitylearner.register.service.MyBookService;
 
 @Controller
 public class WelComeController {
 
 	@Autowired
 	private BookService bookService;
+
+	@Autowired
+	private MyBookService myBookService;
 
 	@GetMapping("/")
 	public String welComeHomePage() {
@@ -51,8 +59,31 @@ public class WelComeController {
 	}
 
 	@GetMapping("/my_books")
-	public String getMyBooks() {
+	public String getMyBooks(Model model) {
+		List<MyBookList> list = myBookService.getAllMyBook();
+		model.addAttribute("book", list);
 		return "myBooks";
+	}
+
+	@RequestMapping("/myList/{id}")
+	public String getMyList(@PathVariable("id") int id) {
+		Book b = bookService.getBookById(id);
+		MyBookList mbl = new MyBookList(b.getId(), b.getName(), b.getAuthor(), b.getPrice());
+		myBookService.saveMyBooks(mbl);
+		return "redirect:/my_books";
+	}
+
+	@RequestMapping("/editBook/{id}")
+	public String editBook(@PathVariable("id") int id, Model model) {
+		Book b = bookService.getBookById(id);
+		model.addAttribute("book", b);
+		return "bookEdit";
+	}
+
+	@RequestMapping("/deleteBook/{id}")
+	public String deleteBook(@PathVariable("id") int id) {
+		bookService.deleteById(id);
+		return "redirect:/availble_Books";
 	}
 
 }
