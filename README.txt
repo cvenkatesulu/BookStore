@@ -34,6 +34,10 @@ spring:
           auth: true
           starttls:
             enable: true
+          connectiontimeout: 5000
+          timeout: 3000
+          writetimeout: 5000		  
+            
 #Loggin
 logging:
   #  file:
